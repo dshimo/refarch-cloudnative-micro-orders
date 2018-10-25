@@ -4,9 +4,9 @@ jdk:
   - openjdk8
 env:
   global:
-    - IMAGE_NAME=bluecompute-orders
+    - IMAGE_NAME=micro-orders
     - RELEASE_NAME=orders
-    - TAG=travis-latest
+    - TAG=latest
     - HS256_KEY=E6526VJkKYhyTFRFMC0pTECpHcZ7TGcq8pKsVVgz9KtESVpheEO284qKzfzg8HpWNBPeHOxNGlyudUHi6i8tFQJXC8PiI48RUpMh23vPDLGD35pCM0417gf58z5xlmRNii56fwRCmIhhV7hDsm3KO2jRv4EBVz7HrYbzFeqI45CaStkMYNipzSm2duuer7zRdMjEKIdqsby0JfpQpykHmC5L6hxkX0BT7XWqztTr6xHCwqst26O0g8r7bXSYjp4a
     - MYSQL_USER=root
     - MYSQL_PASSWORD=
@@ -14,7 +14,7 @@ env:
     - MYSQL_PORT=3306
 stages:
   - local build and test
-  - docker build, deploy, and test
+  - liberty-boost build, deploy, and test
   - kubernetes build, deploy, and test
 jobs:
   include:
@@ -36,8 +36,8 @@ jobs:
       # Wait for the Orders container to start accepting connections
       - sleep 25
       # Run Orders API Test
-      - bash scripts/api_tests.sh 127.0.0.1 8084 $HS256_KEY
-    - stage: docker build, deploy, and test
+      - bash scripts/api_tests.sh 127.0.0.1 8080 $HS256_KEY
+    - stage: liberty-boost build, deploy, and test
       services:
       - mysql
       - docker
@@ -50,7 +50,8 @@ jobs:
       - mysql -u root -e "create database ${MYSQL_DATABASE}"
       script:
       # Build Docker image
-      - docker build -t "${IMAGE_NAME}:${TAG}" .
+      # - docker build -t "${IMAGE_NAME}:${TAG}" .
+      - mvn install -DskipTests=true boost:docker-build
       # Start Orders Container and Connect to local MySQL Service
       - docker run --net=host --name orders -d -p 8084:8084 -e MYSQL_URI="mysql://root@127.0.0.1:${MYSQL_PORT}/${MYSQL_DATABASE}" -e HS256_KEY="${HS256_KEY}" "${IMAGE_NAME}:${TAG}"
       # Wait for the Orders container to start accepting connections
@@ -76,7 +77,7 @@ jobs:
         stable/mariadb
       script:
       # Build Docker image
-      - docker build -t "${IMAGE_NAME}:${TAG}" .
+      - mvn install -DskipTests=true boost:docker-build
       # Download Orders chart dependencies (MySQL)
       - cd chart/orders; helm dependency update; cd ../..
       # helm lint

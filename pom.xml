@@ -103,16 +103,13 @@
             <plugin>
                 <groupId>io.openliberty.boost</groupId>
                 <artifactId>boost-maven-plugin</artifactId>
-                <version>0.1</version>
+                <version>0.1.1</version>
                 <executions>
                     <execution>
-                    <phase>package</phase>
-                    <goals>
-                        <goal>package</goal>
-                    </goals>
-                    <!-- <goals>
-                        <goal>docker-build</goal>
-                    </goals> -->
+                        <phase>package</phase>
+                        <goals>
+                            <goal>package</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
