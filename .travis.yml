@@ -22,20 +22,15 @@ jobs:
       services:
       - mysql
       before_cache:
-        - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
-        - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
-      cache:
-        directories:
-          - $HOME/.gradle/caches/
-          - $HOME/.gradle/wrapper/
+        - rm -fr $HOME/.m2
       before_script:
       # Wait MySQL
       - until mysql -h 127.0.0.1 -P 3306 -uroot -e status; do echo "waiting for mysql"; sleep 1; done; echo "MySQL Started"
       # Create ordersdb database
       - mysql -u root -e "create database ${MYSQL_DATABASE}"
       script:
-      # Gradle Build
-      - ./gradlew build -x test
+      # Maven Build
+      - mvn clean install -DskipTests=true
       # Start Application
       - java -Deureka.client.fetchRegistry=false -Deureka.client.registerWithEureka=false -Dspring.datasource.url=jdbc:mysql://127.0.0.1:${MYSQL_PORT}/${MYSQL_DATABASE} -Dspring.datasource.username=${MYSQL_USER} -Dspring.datasource.password=${MYSQL_PASSWORD} -Dspring.datasource.port=${MYSQL_PORT} -Djwt.sharedSecret=${HS256_KEY} -jar build/libs/micro-orders-0.0.1.jar &
       # Wait for the Orders container to start accepting connections
