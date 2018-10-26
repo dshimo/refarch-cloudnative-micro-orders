@@ -4,14 +4,21 @@ buildscript {
         springBootVersion = '1.4.5.RELEASE'
     }
     repositories {
+        mavenLocal()
         mavenCentral()
+        maven {
+            name = 'Sonatype Nexus Snapshots'
+            url = 'https://oss.sonatype.org/content/repositories/snapshots/'
+        }
     }
     dependencies {
+        classpath 'io.openliberty.boost:boost-gradle-plugin:0.1-SNAPSHOT'
         classpath("org.springframework.boot:spring-boot-gradle-plugin:1.4.5.RELEASE")
         classpath("io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE")
     }
 }
 
+apply plugin: 'boost'
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
@@ -23,6 +30,11 @@ jar {
 }
 
 repositories {
+    mavenLocal()
+    maven {
+        name = 'Sonatype Nexus Snapshots'
+        url = 'https://oss.sonatype.org/content/repositories/snapshots/'
+    }
     mavenCentral()
 }
 
@@ -72,4 +84,9 @@ test {
 
 task wrapper(type: Wrapper) {
     gradleVersion = '3.2'
+}
+
+boost {
+    docker {
+    }
 }
