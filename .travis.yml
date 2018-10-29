@@ -78,7 +78,7 @@ jobs:
       # Build Docker image
       - docker build -f dockerfiles/Dockerfile-Gradle -t "${IMAGE_NAME}:${GRADLE-TAG}" .
       # Start Orders Container and Connect to local MySQL Service
-      - docker run --net=host --name orders -d -p 8084:8084 -e MYSQL_URI="mysql://root@127.0.0.1:${MYSQL_PORT}/${MYSQL_DATABASE}" -e HS256_KEY="${HS256_KEY}" "${IMAGE_NAME}:${TAG}"
+      - docker run --net=host --name orders -d -p 8084:8084 -e MYSQL_URI="mysql://root@127.0.0.1:${MYSQL_PORT}/${MYSQL_DATABASE}" -e HS256_KEY="${HS256_KEY}" "${IMAGE_NAME}:${GRADLE-TAG}"
       # Wait for the Orders container to start accepting connections
       - sleep 25
       # Check that the Orders container is running
@@ -102,7 +102,7 @@ jobs:
       # Build Docker image
       - docker build -f dockerfiles/Dockerfile-Maven -t "${IMAGE_NAME}:${MVN-TAG}" .
       # Start Orders Container and Connect to local MySQL Service
-      - docker run --net=host --name orders -d -p 8084:8084 -e MYSQL_URI="mysql://root@127.0.0.1:${MYSQL_PORT}/${MYSQL_DATABASE}" -e HS256_KEY="${HS256_KEY}" "${IMAGE_NAME}:${TAG}"
+      - docker run --net=host --name orders -d -p 8084:8084 -e MYSQL_URI="mysql://root@127.0.0.1:${MYSQL_PORT}/${MYSQL_DATABASE}" -e HS256_KEY="${HS256_KEY}" "${IMAGE_NAME}:${MVN-TAG}"
       # Wait for the Orders container to start accepting connections
       - sleep 25
       # Check that the Orders container is running
@@ -126,7 +126,7 @@ jobs:
         stable/mariadb
       script:
       # Build Docker image
-      - docker build -f dockerfiles/Dockerfile-Gradle -t "${IMAGE_NAME}:${TAG}" .
+      - docker build -f dockerfiles/Dockerfile-Gradle -t "${IMAGE_NAME}:${GRADLE-TAG}" .
       # Download Orders chart dependencies (MySQL)
       - cd chart/orders; helm dependency update; cd ../..
       # helm lint
@@ -135,7 +135,7 @@ jobs:
       - helm package chart/orders
       # helm install Orders from packaged chart. Use pullPolicy=Never so it uses local docker image
       - CHART_VERSION="$(cat chart/orders/Chart.yaml | grep version | awk '{print $2}')"
-      - helm upgrade --install orders --set service.type=NodePort,image.repository="${IMAGE_NAME}",image.tag="${TAG}",image.pullPolicy=Never orders-${CHART_VERSION}.tgz
+      - helm upgrade --install orders --set service.type=NodePort,image.repository="${IMAGE_NAME}",image.tag="${GRADLE-TAG}",image.pullPolicy=Never orders-${CHART_VERSION}.tgz
       # Wait for Orders to be ready
       - kubectl get deployments ${RELEASE_NAME}-orders -o yaml
       - READY=$(kubectl get deployments ${RELEASE_NAME}-orders -o yaml | grep "readyReplicas" | awk '{print $2}')
@@ -171,7 +171,7 @@ jobs:
       - helm package chart/orders
       # helm install Orders from packaged chart. Use pullPolicy=Never so it uses local docker image
       - CHART_VERSION="$(cat chart/orders/Chart.yaml | grep version | awk '{print $2}')"
-      - helm upgrade --install orders --set service.type=NodePort,image.repository="${IMAGE_NAME}",image.tag="${TAG}",image.pullPolicy=Never orders-${CHART_VERSION}.tgz
+      - helm upgrade --install orders --set service.type=NodePort,image.repository="${IMAGE_NAME}",image.tag="${MAVEN-TAG}",image.pullPolicy=Never orders-${CHART_VERSION}.tgz
       # Wait for Orders to be ready
       - kubectl get deployments ${RELEASE_NAME}-orders -o yaml
       - READY=$(kubectl get deployments ${RELEASE_NAME}-orders -o yaml | grep "readyReplicas" | awk '{print $2}')
