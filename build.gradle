@@ -16,6 +16,15 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: 'org.springframework.boot'
+apply plugin: 'maven'
+ 
+group = 'com.bazlur.app'
+// artifactId is taken by default, from folder name
+version = '0.1-SNAPSHOT'
+ 
+dependencies {
+compile 'commons-lang:commons-lang:2.3'
+}
 
 jar {
     baseName = 'micro-orders'
